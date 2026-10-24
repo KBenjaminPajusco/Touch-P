@@ -15,13 +15,13 @@ import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarker
  * relancé que si le suivi est perdu, ce qui est bien plus rapide que le mode IMAGE.
  * Non thread-safe : un seul thread à la fois (voir [detect]).
  */
-class HandTracker(context: Context, private val maxHands: Int = 2) : AutoCloseable {
+class HandTracker(context: Context, private val maxHands: Int = 2) : HandDetector {
 
     private val appContext = context.applicationContext
     private var landmarker: HandLandmarker = createLandmarker()
     private var lastTimestampMs = 0L
 
-    var delegateName: String = "?"
+    override var delegateName: String = "?"
         private set
 
     private fun createLandmarker(): HandLandmarker {
@@ -50,7 +50,7 @@ class HandTracker(context: Context, private val maxHands: Int = 2) : AutoCloseab
     }
 
     /** Oublie l'état de suivi (changement de scène, par ex. d'image de test). */
-    fun reset() {
+    override fun reset() {
         landmarker.close()
         landmarker = createLandmarker()
         lastTimestampMs = 0L
@@ -60,7 +60,7 @@ class HandTracker(context: Context, private val maxHands: Int = 2) : AutoCloseab
      * @param rotationDegrees rotation horaire à appliquer pour remettre [bitmap] à l'endroit
      * (valeur CameraX `rotationDegrees`). Les landmarks sont renvoyés dans le repère redressé.
      */
-    fun detect(bitmap: Bitmap, rotationDegrees: Int = 0): HandFrame {
+    override fun detect(bitmap: Bitmap, rotationDegrees: Int): HandFrame {
         val start = SystemClock.elapsedRealtimeNanos()
         val timestampMs = maxOf(lastTimestampMs + 1, SystemClock.uptimeMillis())
         lastTimestampMs = timestampMs

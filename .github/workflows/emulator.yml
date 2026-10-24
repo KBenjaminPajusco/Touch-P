@@ -45,6 +45,7 @@ jobs:
 
       - name: Check detection results
         if: always()
+        shell: bash
         run: ./scripts/check-results.sh ci-out/results.txt | tee ci-out/check.txt
 
       - uses: actions/upload-artifact@v4

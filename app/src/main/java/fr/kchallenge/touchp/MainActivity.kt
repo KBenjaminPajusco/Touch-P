@@ -38,6 +38,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         // `adb shell am start -n ... --ez debug true` : démarre directement en mode debug (CI / tests).
         val startInDebug = intent.getBooleanExtra(EXTRA_DEBUG, false)
+        // `--ez replay true` : rejoue des landmarks pré-calculés (émulateur CI, sans MediaPipe natif).
+        vm.useReplay(intent.getBooleanExtra(EXTRA_REPLAY, false))
         if (startInDebug) vm.setDebug(true)
         setContent {
             MaterialTheme(colorScheme = darkColorScheme()) {
@@ -70,5 +72,6 @@ class MainActivity : ComponentActivity() {
 
     private companion object {
         const val EXTRA_DEBUG = "debug"
+        const val EXTRA_REPLAY = "replay"
     }
 }

@@ -8,7 +8,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import fr.kchallenge.touchp.camera.DebugMedia
 import fr.kchallenge.touchp.tracking.HandFrame
+import fr.kchallenge.touchp.tracking.HandDetector
 import fr.kchallenge.touchp.tracking.HandTracker
+import fr.kchallenge.touchp.tracking.ReplayDetector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
@@ -27,13 +29,15 @@ data class DebugShot(val bitmap: Bitmap, val label: String)
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val tracker = HandTracker(app)
+    private var replay = false
+    // Créé au premier usage : MediaPipe charge sa lib native à ce moment-là.
+    private val tracker: HandDetector by lazy { if (replay) ReplayDetector(getApplication()) else HandTracker(getApplication()) }
     private val debugMedia = DebugMedia(app)
 
     private val _frame = MutableStateFlow(HandFrame())
     val frame: StateFlow<HandFrame> = _frame.asStateFlow()
 
-    private val _stats = MutableStateFlow(Stats(delegate = tracker.delegateName))
+    private val _stats = MutableStateFlow(Stats())
     val stats: StateFlow<Stats> = _stats.asStateFlow()
 
     private val _debug = MutableStateFlow(false)
@@ -72,6 +76,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Doit être appelé avant tout usage du détecteur. */
+    fun useReplay(enabled: Boolean) {
+        replay = enabled
+    }
+
     fun setDebug(enabled: Boolean) {
         if (_debug.value == enabled) return
         _debug.value = enabled
@@ -99,7 +108,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     private suspend fun showImage(item: DebugMedia.Item) {
         val bmp = debugMedia.loadImage(item) ?: return
-        synchronized(this) { tracker.reset() } // pas de suivi résiduel de l'image précédente
+        synchronized(this) { // pas de suivi résiduel de l'image précédente
+            tracker.reset()
+            tracker.onScene(item.name)
+        }
         _shot.value = DebugShot(bmp, item.name)
         val end = SystemClock.elapsedRealtime() + IMAGE_DURATION_MS
         // On ré-analyse en boucle pour que FPS / latence restent significatifs.
