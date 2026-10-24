@@ -1,0 +1,94 @@
+10-24 09:11:29.092  3391  3464 I TouchP  : PERF mode=HANDS fps=0.0 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:31.104  3391  3464 I TouchP  : PERF mode=HANDS fps=28.9 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:32.100  3391  3464 I TouchP  : HANDS image=fist.jpg n=1 inferMs=0.0 gestures=LEFT:FIST:0
+10-24 09:11:33.151  3391  3464 I TouchP  : PERF mode=HANDS fps=23.2 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:35.121  3391  3464 I TouchP  : HANDS image=pointing_up.jpg n=1 inferMs=0.0 gestures=RIGHT:NONE:1
+10-24 09:11:35.171  3391  3464 I TouchP  : PERF mode=HANDS fps=25.5 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:37.177  3391  3464 I TouchP  : PERF mode=HANDS fps=28.2 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:38.140  3391  3464 I TouchP  : HANDS image=thumb_up.jpg n=1 inferMs=0.0 gestures=LEFT:THUMBS_UP:1
+10-24 09:11:39.217  3391  3464 I TouchP  : PERF mode=HANDS fps=26.1 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:41.204  3391  3464 I TouchP  : HANDS image=two_hands.jpg n=2 inferMs=0.0 gestures=RIGHT:OPEN_PALM:4,LEFT:OPEN_PALM:4
+10-24 09:11:41.261  3391  3464 I TouchP  : PERF mode=HANDS fps=22.3 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:43.262  3391  3464 I TouchP  : PERF mode=HANDS fps=24.5 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:44.417  3391  3464 I TouchP  : HANDS image=victory.jpg n=1 inferMs=0.0 gestures=LEFT:VICTORY:2
+10-24 09:11:45.296  3391  3464 I TouchP  : PERF mode=HANDS fps=24.0 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:47.417  3391  3464 I TouchP  : PERF mode=HANDS fps=18.7 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:47.457  3391  3464 I TouchP  : HANDS image=fist.jpg n=1 inferMs=0.0 gestures=LEFT:FIST:0
+10-24 09:11:49.450  3391  3464 I TouchP  : PERF mode=HANDS fps=28.1 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:50.499  3391  3464 I TouchP  : HANDS image=pointing_up.jpg n=1 inferMs=0.0 gestures=RIGHT:NONE:1
+10-24 09:11:51.480  3391  3464 I TouchP  : PERF mode=HANDS fps=26.9 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:53.550  3391  3464 I TouchP  : HANDS image=thumb_up.jpg n=1 inferMs=0.0 gestures=LEFT:THUMBS_UP:1
+10-24 09:11:53.610  3391  3464 I TouchP  : PERF mode=HANDS fps=22.2 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:55.616  3391  3464 I TouchP  : PERF mode=HANDS fps=25.4 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:56.638  3391  3464 I TouchP  : HANDS image=two_hands.jpg n=2 inferMs=0.0 gestures=RIGHT:OPEN_PALM:4,LEFT:OPEN_PALM:4
+10-24 09:11:57.644  3391  3464 I TouchP  : PERF mode=HANDS fps=26.2 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:11:59.652  3391  3464 I TouchP  : HANDS image=victory.jpg n=1 inferMs=0.0 gestures=LEFT:VICTORY:2
+10-24 09:11:59.655  3391  3464 I TouchP  : PERF mode=HANDS fps=26.9 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:01.672  3391  3464 I TouchP  : PERF mode=HANDS fps=28.7 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:02.657  3391  3464 I TouchP  : HANDS image=fist.jpg n=1 inferMs=0.0 gestures=LEFT:FIST:0
+10-24 09:12:03.696  3391  3464 I TouchP  : PERF mode=HANDS fps=27.0 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:05.674  3391  3464 I TouchP  : HANDS image=pointing_up.jpg n=1 inferMs=0.0 gestures=RIGHT:NONE:1
+10-24 09:12:05.729  3391  3464 I TouchP  : PERF mode=HANDS fps=25.2 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:07.729  3391  3464 I TouchP  : PERF mode=HANDS fps=28.1 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:08.688  3391  3464 I TouchP  : HANDS image=thumb_up.jpg n=1 inferMs=0.0 gestures=LEFT:THUMBS_UP:1
+10-24 09:12:09.770  3391  3464 I TouchP  : PERF mode=HANDS fps=26.8 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:11.739  3391  3464 I TouchP  : HANDS image=two_hands.jpg n=2 inferMs=0.0 gestures=RIGHT:OPEN_PALM:4,LEFT:OPEN_PALM:4
+10-24 09:12:11.772  3391  3464 I TouchP  : PERF mode=HANDS fps=27.3 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:13.801  3391  3464 I TouchP  : PERF mode=HANDS fps=27.1 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:14.773  3391  3464 I TouchP  : HANDS image=victory.jpg n=1 inferMs=0.0 gestures=LEFT:VICTORY:2
+10-24 09:12:15.817  3391  3464 I TouchP  : PERF mode=HANDS fps=28.7 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:17.838  3391  3464 I TouchP  : HANDS image=fist.jpg n=1 inferMs=0.0 gestures=LEFT:FIST:0
+10-24 09:12:17.890  3391  3464 I TouchP  : PERF mode=HANDS fps=20.4 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:19.891  3391  3464 I TouchP  : PERF mode=HANDS fps=29.3 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:20.872  3391  3464 I TouchP  : HANDS image=pointing_up.jpg n=1 inferMs=0.0 gestures=RIGHT:NONE:1
+10-24 09:12:21.923  3391  3464 I TouchP  : PERF mode=HANDS fps=24.3 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:23.960  3391  3464 I TouchP  : HANDS image=thumb_up.jpg n=1 inferMs=0.0 gestures=LEFT:THUMBS_UP:1
+10-24 09:12:24.068  3391  3464 I TouchP  : PERF mode=HANDS fps=22.5 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:26.103  3391  3464 I TouchP  : PERF mode=HANDS fps=25.8 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:27.085  3391  3464 I TouchP  : HANDS image=two_hands.jpg n=2 inferMs=0.0 gestures=RIGHT:OPEN_PALM:4,LEFT:OPEN_PALM:4
+10-24 09:12:28.109  3391  3464 I TouchP  : PERF mode=HANDS fps=26.8 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:30.123  3391  3464 I TouchP  : HANDS image=victory.jpg n=1 inferMs=0.0 gestures=LEFT:VICTORY:2
+10-24 09:12:30.127  3391  3464 I TouchP  : PERF mode=HANDS fps=26.8 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:32.136  3391  3464 I TouchP  : PERF mode=HANDS fps=26.3 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:33.129  3391  3464 I TouchP  : HANDS image=fist.jpg n=1 inferMs=0.0 gestures=LEFT:FIST:0
+10-24 09:12:34.145  3391  3464 I TouchP  : PERF mode=HANDS fps=25.5 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:36.132  3391  3464 I TouchP  : HANDS image=pointing_up.jpg n=1 inferMs=0.0 gestures=RIGHT:NONE:1
+10-24 09:12:36.145  3391  3464 I TouchP  : PERF mode=HANDS fps=27.5 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:38.150  3391  3464 I TouchP  : PERF mode=HANDS fps=26.9 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:39.151  3391  3464 I TouchP  : HANDS image=thumb_up.jpg n=1 inferMs=0.0 gestures=LEFT:THUMBS_UP:1
+10-24 09:12:40.159  3391  3464 I TouchP  : PERF mode=HANDS fps=26.5 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:42.198  3391  3464 I TouchP  : HANDS image=two_hands.jpg n=2 inferMs=0.0 gestures=RIGHT:OPEN_PALM:4,LEFT:OPEN_PALM:4
+10-24 09:12:42.206  3391  3464 I TouchP  : PERF mode=HANDS fps=24.6 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:44.246  3391  3464 I TouchP  : PERF mode=HANDS fps=26.3 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:45.229  3391  3464 I TouchP  : HANDS image=victory.jpg n=1 inferMs=0.0 gestures=LEFT:VICTORY:2
+10-24 09:12:46.253  3391  3464 I TouchP  : PERF mode=HANDS fps=23.4 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:48.257  3391  3464 I TouchP  : HANDS image=fist.jpg n=1 inferMs=0.0 gestures=LEFT:FIST:0
+10-24 09:12:48.265  3391  3464 I TouchP  : PERF mode=HANDS fps=28.6 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:50.280  3391  3464 I TouchP  : PERF mode=HANDS fps=26.1 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:51.276  3391  3464 I TouchP  : HANDS image=pointing_up.jpg n=1 inferMs=0.0 gestures=RIGHT:NONE:1
+10-24 09:12:52.292  3391  3464 I TouchP  : PERF mode=HANDS fps=26.6 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:54.286  3391  3464 I TouchP  : HANDS image=thumb_up.jpg n=1 inferMs=0.0 gestures=LEFT:THUMBS_UP:1
+10-24 09:12:54.395  3391  3464 I TouchP  : PERF mode=HANDS fps=26.4 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:56.446  3391  3464 I TouchP  : PERF mode=HANDS fps=26.6 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:12:57.425  3391  3464 I TouchP  : HANDS image=two_hands.jpg n=2 inferMs=0.0 gestures=RIGHT:OPEN_PALM:4,LEFT:OPEN_PALM:4
+10-24 09:12:58.467  3391  3464 I TouchP  : PERF mode=HANDS fps=28.1 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:00.493  3391  3464 I TouchP  : HANDS image=victory.jpg n=1 inferMs=0.0 gestures=LEFT:VICTORY:2
+10-24 09:13:00.505  3391  3464 I TouchP  : PERF mode=HANDS fps=25.9 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:02.548  3391  3464 I TouchP  : PERF mode=HANDS fps=24.5 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:03.577  3391  3464 I TouchP  : HANDS image=fist.jpg n=1 inferMs=0.0 gestures=LEFT:FIST:0
+10-24 09:13:04.562  3391  3464 I TouchP  : PERF mode=HANDS fps=26.9 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:06.583  3391  3464 I TouchP  : PERF mode=HANDS fps=28.2 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:06.626  3391  3464 I TouchP  : HANDS image=pointing_up.jpg n=1 inferMs=0.0 gestures=RIGHT:NONE:1
+10-24 09:13:08.585  3391  3465 I TouchP  : PERF mode=HANDS fps=26.2 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:09.732  3391  3464 I TouchP  : HANDS image=thumb_up.jpg n=1 inferMs=0.0 gestures=LEFT:THUMBS_UP:1
+10-24 09:13:10.618  3391  3464 I TouchP  : PERF mode=HANDS fps=26.5 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:12.644  3391  3464 I TouchP  : PERF mode=HANDS fps=27.3 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:12.774  3391  3464 I TouchP  : HANDS image=two_hands.jpg n=2 inferMs=0.0 gestures=RIGHT:OPEN_PALM:4,LEFT:OPEN_PALM:4
+10-24 09:13:14.672  3391  3464 I TouchP  : PERF mode=HANDS fps=29.0 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:15.807  3391  3464 I TouchP  : HANDS image=victory.jpg n=1 inferMs=0.0 gestures=LEFT:VICTORY:2
+10-24 09:13:16.686  3391  3464 I TouchP  : PERF mode=HANDS fps=23.6 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:18.755  3391  3464 I TouchP  : PERF mode=HANDS fps=25.0 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:18.840  3391  3464 I TouchP  : HANDS image=fist.jpg n=1 inferMs=0.0 gestures=LEFT:FIST:0
+10-24 09:13:20.766  3391  3464 I TouchP  : PERF mode=HANDS fps=29.5 inferMs=0.0 delegate=REPLAY debug=true
+10-24 09:13:21.861  3391  3464 I TouchP  : HANDS image=pointing_up.jpg n=1 inferMs=0.0 gestures=RIGHT:NONE:1
+10-24 09:13:22.775  3391  3464 I TouchP  : PERF mode=HANDS fps=27.9 inferMs=0.0 delegate=REPLAY debug=true

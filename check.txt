@@ -1,0 +1,5 @@
+OK   two_hands.jpg -> 2 main(s) 
+OK   thumb_up.jpg -> 1 main(s) THUMBS_UP:1
+OK   victory.jpg -> 1 main(s) VICTORY:2
+OK   pointing_up.jpg -> 1 main(s) 
+OK   fist.jpg -> 1 main(s) FIST:0
