@@ -36,11 +36,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // `adb shell am start -n ... --ez debug true` : démarre directement en mode debug (CI / tests).
+        val startInDebug = intent.getBooleanExtra(EXTRA_DEBUG, false)
+        if (startInDebug) vm.setDebug(true)
         setContent {
             MaterialTheme(colorScheme = darkColorScheme()) {
                 var granted by remember {
                     mutableStateOf(
-                        ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+                        startInDebug || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
                             PackageManager.PERMISSION_GRANTED,
                     )
                 }
@@ -63,5 +66,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private companion object {
+        const val EXTRA_DEBUG = "debug"
     }
 }

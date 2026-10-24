@@ -2,6 +2,7 @@ package fr.kchallenge.touchp.ui
 
 import android.app.Application
 import android.graphics.Bitmap
+import android.util.Log
 import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,16 +46,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private var lastFrameNs = 0L
     private var fpsEma = 0f
     private var inferEma = 0f
+    private var lastPerfLogNs = 0L
 
     /** Appelé par la caméra sur son thread d'analyse (une image à la fois). */
-    fun onCameraFrame(bitmap: Bitmap) {
+    fun onCameraFrame(bitmap: Bitmap, rotationDegrees: Int) {
         if (_debug.value) return
-        process(bitmap)
+        process(bitmap, rotationDegrees)
     }
 
     @Synchronized
-    private fun process(bitmap: Bitmap) {
-        val result = tracker.detect(bitmap)
+    private fun process(bitmap: Bitmap, rotationDegrees: Int = 0) {
+        val result = tracker.detect(bitmap, rotationDegrees)
         val now = SystemClock.elapsedRealtimeNanos()
         if (lastFrameNs != 0L) {
             val fps = 1e9f / (now - lastFrameNs)
@@ -64,6 +66,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         inferEma = if (inferEma == 0f) result.inferenceMs else inferEma * 0.9f + result.inferenceMs * 0.1f
         _frame.value = result
         _stats.value = Stats(fpsEma, inferEma, tracker.delegateName)
+        if (now - lastPerfLogNs > 2_000_000_000L) {
+            lastPerfLogNs = now
+            Log.i(TAG, "PERF fps=%.1f inferMs=%.1f delegate=%s debug=%b".format(fpsEma, inferEma, tracker.delegateName, _debug.value))
+        }
     }
 
     fun setDebug(enabled: Boolean) {
@@ -93,6 +99,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     private suspend fun showImage(item: DebugMedia.Item) {
         val bmp = debugMedia.loadImage(item) ?: return
+        synchronized(this) { tracker.reset() } // pas de suivi résiduel de l'image précédente
         _shot.value = DebugShot(bmp, item.name)
         val end = SystemClock.elapsedRealtime() + IMAGE_DURATION_MS
         // On ré-analyse en boucle pour que FPS / latence restent significatifs.
@@ -100,6 +107,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             process(bmp)
             delay(30)
         }
+        Log.i(TAG, "HANDS image=${item.name} n=${_frame.value.hands.size} inferMs=%.1f".format(inferEma))
     }
 
     private suspend fun playVideo(item: DebugMedia.Item) {
@@ -121,6 +129,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private companion object {
+        const val TAG = "TouchP"
         const val IMAGE_DURATION_MS = 3000L
     }
 }

@@ -52,19 +52,19 @@ fun CameraScreen(vm: MainViewModel) {
                 )
             }
         } else {
-            val camera = remember { LiveCamera(context) { vm.onCameraFrame(it) } }
+            val camera = remember { LiveCamera(context) { bmp, rot -> vm.onCameraFrame(bmp, rot) } }
+            val previewView = remember {
+                PreviewView(context).apply {
+                    scaleType = PreviewView.ScaleType.FILL_CENTER
+                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                }
+            }
             DisposableEffect(camera) {
-                camera.bind(owner)
+                camera.bind(owner, previewView)
                 onDispose { camera.shutdown() }
             }
             AndroidView(
-                factory = { ctx ->
-                    PreviewView(ctx).apply {
-                        scaleType = PreviewView.ScaleType.FILL_CENTER
-                        implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-                        controller = camera.controller
-                    }
-                },
+                factory = { previewView },
                 modifier = Modifier.fillMaxSize(),
             )
         }
