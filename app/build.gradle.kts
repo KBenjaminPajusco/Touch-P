@@ -54,4 +54,5 @@ dependencies {
     implementation("com.google.mediapipe:tasks-vision:0.10.21")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }

@@ -16,7 +16,8 @@ opts = vision.HandLandmarkerOptions(
 )
 landmarker = vision.HandLandmarker.create_from_options(opts)
 for img in sorted((assets / "debug").glob("*.jpg")):
-    res = landmarker.detect(mp.Image.create_from_file(str(img)))
+    image = mp.Image.create_from_file(str(img))
+    res = landmarker.detect(image)
     hands = [
         {
             "label": res.handedness[i][0].category_name,
@@ -26,5 +27,5 @@ for img in sorted((assets / "debug").glob("*.jpg")):
         for i, pts in enumerate(res.hand_landmarks)
     ]
     out = img.with_suffix(".json")
-    out.write_text(json.dumps({"hands": hands}))
+    out.write_text(json.dumps({"width": image.width, "height": image.height, "hands": hands}))
     print(f"{img.name}: {len(hands)} main(s) {[h['label'] for h in hands]}")

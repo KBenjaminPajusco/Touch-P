@@ -7,6 +7,8 @@ import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import fr.kchallenge.touchp.camera.DebugMedia
+import fr.kchallenge.touchp.gesture.GestureEngine
+import fr.kchallenge.touchp.gesture.HandReading
 import fr.kchallenge.touchp.tracking.HandFrame
 import fr.kchallenge.touchp.tracking.HandDetector
 import fr.kchallenge.touchp.tracking.HandTracker
@@ -36,6 +38,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _frame = MutableStateFlow(HandFrame())
     val frame: StateFlow<HandFrame> = _frame.asStateFlow()
+
+    private val gestures = GestureEngine()
+    private val _readings = MutableStateFlow<List<HandReading>>(emptyList())
+    val readings: StateFlow<List<HandReading>> = _readings.asStateFlow()
 
     private val _stats = MutableStateFlow(Stats())
     val stats: StateFlow<Stats> = _stats.asStateFlow()
@@ -69,6 +75,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         lastFrameNs = now
         inferEma = if (inferEma == 0f) result.inferenceMs else inferEma * 0.9f + result.inferenceMs * 0.1f
         _frame.value = result
+        _readings.value = gestures.update(result)
         _stats.value = Stats(fpsEma, inferEma, tracker.delegateName)
         if (now - lastPerfLogNs > 2_000_000_000L) {
             lastPerfLogNs = now
@@ -86,6 +93,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         _debug.value = enabled
         debugJob?.cancel()
         _frame.value = HandFrame()
+        _readings.value = emptyList()
+        gestures.reset()
         lastFrameNs = 0L
         fpsEma = 0f
         inferEma = 0f
@@ -111,6 +120,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         synchronized(this) { // pas de suivi résiduel de l'image précédente
             tracker.reset()
             tracker.onScene(item.name)
+            gestures.reset()
         }
         _shot.value = DebugShot(bmp, item.name)
         val end = SystemClock.elapsedRealtime() + IMAGE_DURATION_MS
@@ -119,7 +129,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             process(bmp)
             delay(30)
         }
-        Log.i(TAG, "HANDS image=${item.name} n=${_frame.value.hands.size} inferMs=%.1f".format(inferEma))
+        val gestureList = _readings.value.joinToString(",") { "${it.side.name}:${it.gesture.name}:${it.fingerCount}" }
+        Log.i(TAG, "HANDS image=${item.name} n=${_frame.value.hands.size} inferMs=%.1f gestures=%s".format(inferEma, gestureList))
     }
 
     private suspend fun playVideo(item: DebugMedia.Item) {

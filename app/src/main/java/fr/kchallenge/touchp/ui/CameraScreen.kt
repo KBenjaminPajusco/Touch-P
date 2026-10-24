@@ -40,6 +40,7 @@ fun CameraScreen(vm: MainViewModel) {
     val stats by vm.stats.collectAsStateWithLifecycle()
     val debug by vm.debug.collectAsStateWithLifecycle()
     val shot by vm.shot.collectAsStateWithLifecycle()
+    val readings by vm.readings.collectAsStateWithLifecycle()
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
         if (debug) {
@@ -78,6 +79,12 @@ fun CameraScreen(vm: MainViewModel) {
             Text("FPS %.1f".format(stats.fps), color = Color.White, fontSize = 14.sp)
             Text("Inférence %.1f ms (%s)".format(stats.inferenceMs, stats.delegate), color = Color.White, fontSize = 14.sp)
             Text("Mains : ${frame.hands.size}", color = Color.White, fontSize = 14.sp)
+            readings.forEach {
+                Text(
+                    "${it.side.label} : ${it.gesture.label} · ${it.fingerCount} doigt(s)",
+                    color = Color(0xFF69F0AE), fontSize = 14.sp,
+                )
+            }
             if (debug) shot?.let { Text(it.label, color = Color(0xFFFFEB3B), fontSize = 12.sp) }
         }
 
