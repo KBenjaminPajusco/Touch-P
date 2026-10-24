@@ -83,6 +83,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    private fun clearGestures() {
+        gestures.reset()
+        _readings.value = emptyList()
+    }
+
     /** Doit être appelé avant tout usage du détecteur. */
     fun useReplay(enabled: Boolean) {
         replay = enabled
@@ -93,8 +98,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         _debug.value = enabled
         debugJob?.cancel()
         _frame.value = HandFrame()
-        _readings.value = emptyList()
-        gestures.reset()
+        clearGestures()
         lastFrameNs = 0L
         fpsEma = 0f
         inferEma = 0f
@@ -120,7 +124,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         synchronized(this) { // pas de suivi résiduel de l'image précédente
             tracker.reset()
             tracker.onScene(item.name)
-            gestures.reset()
+            clearGestures()
         }
         _shot.value = DebugShot(bmp, item.name)
         val end = SystemClock.elapsedRealtime() + IMAGE_DURATION_MS

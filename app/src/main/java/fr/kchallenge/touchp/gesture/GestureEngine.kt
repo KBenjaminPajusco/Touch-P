@@ -1,6 +1,7 @@
 package fr.kchallenge.touchp.gesture
 
 import fr.kchallenge.touchp.tracking.HandFrame
+import fr.kchallenge.touchp.tracking.Side
 
 /** Lisse les gestes et le nombre de doigts, main par main, sur plusieurs images. */
 class GestureEngine(
@@ -17,21 +18,15 @@ class GestureEngine(
     private val slots = HashMap<Side, Slot>()
 
     fun update(frame: HandFrame): List<HandReading> {
-        val seen = HashSet<Side>()
-        val readings = frame.hands.mapNotNull { hand ->
-            // MediaPipe suppose une image miroir (selfie) ; nos images ne le sont pas, donc on inverse.
-            val side = if (hand.label == "Left") Side.RIGHT else Side.LEFT
-            if (!seen.add(side)) return@mapNotNull null // deux mains avec le même côté : on garde la première
+        // Si MediaPipe renvoie deux mains du même côté, on ne garde que la première.
+        val readings = frame.hands.distinctBy { it.side }.map { hand ->
             val pose = HandAnalyzer.analyze(hand, frame.imageWidth, frame.imageHeight)
-            val slot = slots.getOrPut(side) { Slot(confirmFrames) }
+            val slot = slots.getOrPut(hand.side) { Slot(confirmFrames) }
             slot.missing = 0
-            HandReading(side, slot.gesture.update(pose.gesture), slot.fingers.update(pose.fingerCount))
+            HandReading(hand.side, slot.gesture.update(pose.gesture), slot.fingers.update(pose.fingerCount))
         }
-        val iterator = slots.entries.iterator()
-        while (iterator.hasNext()) {
-            val (side, slot) = iterator.next()
-            if (side !in seen && ++slot.missing > dropFrames) iterator.remove()
-        }
+        val seen = readings.map { it.side }
+        slots.entries.removeAll { (side, slot) -> side !in seen && ++slot.missing > dropFrames }
         return readings
     }
 

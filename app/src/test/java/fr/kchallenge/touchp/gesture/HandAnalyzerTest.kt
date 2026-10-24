@@ -1,19 +1,11 @@
 package fr.kchallenge.touchp.gesture
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HandAnalyzerTest {
 
-    private fun synthetic(vararg args: Pair<String, Boolean>): HandPose {
-        val m = args.toMap()
-        val hand = SyntheticHand.build(
-            thumb = m["thumb"] == true, index = m["index"] == true, middle = m["middle"] == true,
-            ring = m["ring"] == true, pinky = m["pinky"] == true, pinch = m["pinch"] == true,
-        )
-        return HandAnalyzer.analyze(hand, 100, 100)
-    }
+    private fun analyze(hand: fr.kchallenge.touchp.tracking.Hand) = HandAnalyzer.analyze(hand, 100, 100)
 
     // --- Vraies photos ---
 
@@ -31,8 +23,7 @@ class HandAnalyzerTest {
 
     @Test fun photoPointingUp() {
         val pose = Fixtures.analyze("pointing_up")
-        assertTrue(Finger.INDEX in pose.extended)
-        assertEquals(1, pose.extended.size - (if (Finger.THUMB in pose.extended) 1 else 0))
+        assertEquals(setOf(Finger.INDEX), pose.extended - Finger.THUMB)
     }
 
     @Test fun photoFist() {
@@ -44,30 +35,30 @@ class HandAnalyzerTest {
     // --- Mains synthétiques ---
 
     @Test fun syntheticOpenPalm() {
-        val pose = synthetic("thumb" to true, "index" to true, "middle" to true, "ring" to true, "pinky" to true)
+        val pose = analyze(SyntheticHand.build(thumb = true, index = true, middle = true, ring = true, pinky = true))
         assertEquals(5, pose.fingerCount)
         assertEquals(Gesture.OPEN_PALM, pose.gesture)
     }
 
     @Test fun syntheticFist() {
-        val pose = synthetic()
+        val pose = analyze(SyntheticHand.build())
         assertEquals(0, pose.fingerCount)
         assertEquals(Gesture.FIST, pose.gesture)
     }
 
     @Test fun syntheticGun() {
-        val pose = synthetic("thumb" to true, "index" to true)
+        val pose = analyze(SyntheticHand.build(thumb = true, index = true))
         assertEquals(2, pose.fingerCount)
         assertEquals(Gesture.GUN, pose.gesture)
     }
 
     @Test fun syntheticVictory() {
-        val pose = synthetic("index" to true, "middle" to true)
+        val pose = analyze(SyntheticHand.build(index = true, middle = true))
         assertEquals(Gesture.VICTORY, pose.gesture)
     }
 
     @Test fun syntheticPinch() {
-        val pose = synthetic("thumb" to true, "index" to true, "pinch" to true)
+        val pose = analyze(SyntheticHand.build(thumb = true, index = true, pinch = true))
         assertEquals(Gesture.PINCH, pose.gesture)
     }
 

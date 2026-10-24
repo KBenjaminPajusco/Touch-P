@@ -1,5 +1,7 @@
 package fr.kchallenge.touchp.gesture
 
+import fr.kchallenge.touchp.tracking.Side
+
 enum class Finger { THUMB, INDEX, MIDDLE, RING, PINKY }
 
 enum class Gesture(val label: String) {
@@ -19,5 +21,3 @@ data class HandPose(val extended: Set<Finger>, val gesture: Gesture) {
 
 /** Résultat lissé pour une main, prêt à afficher. */
 data class HandReading(val side: Side, val gesture: Gesture, val fingerCount: Int)
-
-enum class Side(val label: String) { LEFT("Gauche"), RIGHT("Droite") }

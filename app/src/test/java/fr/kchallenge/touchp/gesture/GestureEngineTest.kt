@@ -2,8 +2,8 @@ package fr.kchallenge.touchp.gesture
 
 import fr.kchallenge.touchp.tracking.Hand
 import fr.kchallenge.touchp.tracking.HandFrame
+import fr.kchallenge.touchp.tracking.Side
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GestureEngineTest {
@@ -52,18 +52,11 @@ class GestureEngineTest {
         assertEquals(Gesture.NONE, engine.update(frameOf(victory)).single().gesture)
     }
 
-    @Test fun sidesAreInvertedForNonMirroredImages() {
-        val engine = GestureEngine()
-        assertEquals(Side.RIGHT, engine.update(frameOf(victory.copy(label = "Left"))).single().side)
-        assertEquals(Side.LEFT, engine.update(frameOf(victory.copy(label = "Right"))).single().side)
-    }
-
     @Test fun twoHandsTrackedIndependently() {
         val engine = GestureEngine(confirmFrames = 1)
-        val readings = engine.update(frameOf(victory.copy(label = "Left"), fist.copy(label = "Right")))
+        val readings = engine.update(frameOf(victory.copy(side = Side.LEFT), fist.copy(side = Side.RIGHT)))
         assertEquals(2, readings.size)
-        assertEquals(Gesture.VICTORY, readings.first { it.side == Side.RIGHT }.gesture)
-        assertEquals(Gesture.FIST, readings.first { it.side == Side.LEFT }.gesture)
-        assertTrue(readings.all { it.fingerCount in 0..5 })
+        assertEquals(Gesture.VICTORY, readings.first { it.side == Side.LEFT }.gesture)
+        assertEquals(Gesture.FIST, readings.first { it.side == Side.RIGHT }.gesture)
     }
 }

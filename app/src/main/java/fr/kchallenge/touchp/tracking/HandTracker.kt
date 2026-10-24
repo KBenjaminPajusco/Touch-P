@@ -72,7 +72,7 @@ class HandTracker(context: Context, private val maxHands: Int = 2) : HandDetecto
             val category = result.handedness().getOrNull(i)?.firstOrNull()
             Hand(
                 landmarks = points.map { Landmark(it.x(), it.y(), it.z()) },
-                label = category?.categoryName() ?: "?",
+                side = Side.fromMediaPipe(category?.categoryName()),
                 score = category?.score() ?: 0f,
             )
         }

@@ -9,7 +9,9 @@ expect() {
   local img=$1 n=$2 gesture=${3:-}
   local line
   line=$(grep "HANDS image=$img " "$RESULTS" | tail -1)
-  if [[ "$line" == *" n=$n "* && ( -z "$gesture" || "$line" == *":$gesture"* ) ]]; then
+  # gestures=COTE:GESTE:DOIGTS,... : on compare un élément entier, pas une sous-chaîne.
+  local gestures=${line##*gestures=}
+  if [[ "$line" == *" n=$n "* && ( -z "$gesture" || ",$gestures," =~ ,(LEFT|RIGHT):$gesture, ) ]]; then
     echo "OK   $img -> $n main(s) ${gesture}"
   else
     echo "FAIL $img : attendu n=$n ${gesture} ; obtenu: ${line:-aucune ligne}"
