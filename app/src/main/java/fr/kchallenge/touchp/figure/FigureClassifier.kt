@@ -2,6 +2,7 @@ package fr.kchallenge.touchp.figure
 
 import fr.kchallenge.touchp.tracking.Landmark
 import fr.kchallenge.touchp.tracking.PoseLm
+import fr.kchallenge.touchp.tracking.isVisible
 import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.atan2
@@ -12,10 +13,10 @@ import kotlin.math.PI
  * Reconnaissance de figures statiques à partir des angles du corps, en 2D image (pas de 3D) :
  * une figure doit donc être filmée de profil (planche, lever) ou de face (human flag).
  * Le lever avant et arrière ont la même silhouette de profil : ils ne sont pas distingués.
+ * "Haut" et "bas" sont ceux de l'image redressée : l'app est verrouillée en portrait, donc ils
+ * suivent la gravité tant que le téléphone est tenu droit (tolérance ~25° de roulis).
  */
 object FigureClassifier {
-
-    private const val MIN_VISIBILITY = 0.3f
 
     /** Angle minimal (degrés) aux hanches et aux genoux pour un corps gainé. */
     private const val STRAIGHT_BODY = 155.0
@@ -40,10 +41,11 @@ object FigureClassifier {
     private class P(val x: Double, val y: Double)
 
     fun classify(landmarks: List<Landmark>, imageWidth: Int, imageHeight: Int): Figure {
-        if (landmarks.size < PoseLm.COUNT || REQUIRED.any { landmarks[it].visibility < MIN_VISIBILITY }) return Figure.NONE
+        if (landmarks.size < PoseLm.COUNT || REQUIRED.any { !landmarks[it].isVisible }) return Figure.NONE
 
         // Pixels, pour ne pas déformer angles et distances sur une image non carrée.
-        fun p(i: Int) = P(landmarks[i].x.toDouble() * imageWidth, landmarks[i].y.toDouble() * imageHeight)
+        val pts = Array(PoseLm.COUNT) { P(landmarks[it].x.toDouble() * imageWidth, landmarks[it].y.toDouble() * imageHeight) }
+        fun p(i: Int) = pts[i]
         fun mid(a: Int, b: Int) = P((p(a).x + p(b).x) / 2, (p(a).y + p(b).y) / 2)
         fun dist(a: P, b: P) = hypot(a.x - b.x, a.y - b.y)
         fun angle(a: Int, b: Int, c: Int): Double {
@@ -73,11 +75,15 @@ object FigureClassifier {
         val armLength = dist(p(PoseLm.L_SHOULDER), p(PoseLm.L_ELBOW)) + dist(p(PoseLm.L_ELBOW), p(PoseLm.L_WRIST))
         fun below(wrist: Int) = p(wrist).y - shoulders.y > WRIST_OFFSET * armLength
         fun above(wrist: Int) = shoulders.y - p(wrist).y > WRIST_OFFSET * armLength
+        val leftBelow = below(PoseLm.L_WRIST)
+        val leftAbove = above(PoseLm.L_WRIST)
+        val rightBelow = below(PoseLm.R_WRIST)
+        val rightAbove = above(PoseLm.R_WRIST)
 
         val horizontal = tilt <= HORIZONTAL_MAX
-        val flag = (above(PoseLm.L_WRIST) && below(PoseLm.R_WRIST)) || (below(PoseLm.L_WRIST) && above(PoseLm.R_WRIST))
-        val wristsBelow = below(PoseLm.L_WRIST) && below(PoseLm.R_WRIST)
-        val wristsAbove = above(PoseLm.L_WRIST) && above(PoseLm.R_WRIST)
+        val flag = (leftAbove && rightBelow) || (leftBelow && rightAbove)
+        val wristsBelow = leftBelow && rightBelow
+        val wristsAbove = leftAbove && rightAbove
 
         return when {
             horizontal && flag -> Figure.HUMAN_FLAG

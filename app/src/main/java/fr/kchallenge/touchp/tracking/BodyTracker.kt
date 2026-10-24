@@ -12,14 +12,15 @@ import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 /** MediaPipe Pose Landmarker (une personne, mode VIDEO). Même contrat que [HandTracker] : un thread à la fois. */
 class BodyTracker(context: Context) : AutoCloseable {
 
-    private val landmarker: PoseLandmarker
-    private var lastTimestampMs = 0L
+    private val appContext = context.applicationContext
+    private var landmarker: PoseLandmarker = createLandmarker()
+    private val clock = MonotonicClockMs()
 
-    val delegateName: String
+    var delegateName: String = "?"
+        private set
 
-    init {
-        val appContext = context.applicationContext
-        val (created, delegate) = createWithFallback(null) { delegate ->
+    private fun createLandmarker(): PoseLandmarker {
+        val (created, delegate) = createWithFallback(delegateName.takeIf { it != "?" }) { delegate ->
             val base = BaseOptions.builder().setModelAssetPath(MODEL_ASSET).setDelegate(delegate).build()
             val options = PoseLandmarker.PoseLandmarkerOptions.builder()
                 .setBaseOptions(base)
@@ -28,29 +29,29 @@ class BodyTracker(context: Context) : AutoCloseable {
                 .build()
             PoseLandmarker.createFromOptions(appContext, options)
         }
-        landmarker = created
         delegateName = delegate
+        return created
+    }
+
+    /** Oublie l'état de suivi (changement de scène). */
+    fun reset() {
+        landmarker.close()
+        landmarker = createLandmarker()
+        clock.reset()
     }
 
     /** @param rotationDegrees rotation horaire pour remettre [bitmap] à l'endroit (CameraX). */
     fun detect(bitmap: Bitmap, rotationDegrees: Int = 0): BodyFrame {
         val start = SystemClock.elapsedRealtimeNanos()
-        val timestampMs = maxOf(lastTimestampMs + 1, SystemClock.uptimeMillis())
-        lastTimestampMs = timestampMs
         val options = ImageProcessingOptions.builder().setRotationDegrees(rotationDegrees).build()
-        val result = landmarker.detectForVideo(BitmapImageBuilder(bitmap).build(), options, timestampMs)
+        val result = landmarker.detectForVideo(BitmapImageBuilder(bitmap).build(), options, clock.next())
         val ms = (SystemClock.elapsedRealtimeNanos() - start) / 1_000_000f
 
         val landmarks = result.landmarks().firstOrNull()?.map {
             Landmark(it.x(), it.y(), it.z(), it.visibility().orElse(1f))
         }
-        val sideways = rotationDegrees % 180 != 0
-        return BodyFrame(
-            landmarks,
-            imageWidth = if (sideways) bitmap.height else bitmap.width,
-            imageHeight = if (sideways) bitmap.width else bitmap.height,
-            inferenceMs = ms,
-        )
+        val (width, height) = bitmap.uprightSize(rotationDegrees)
+        return BodyFrame(landmarks, width, height, ms)
     }
 
     override fun close() = landmarker.close()

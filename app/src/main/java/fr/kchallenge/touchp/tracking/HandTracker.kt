@@ -18,7 +18,7 @@ class HandTracker(context: Context, private val maxHands: Int = 2) : HandDetecto
 
     private val appContext = context.applicationContext
     private var landmarker: HandLandmarker = createLandmarker()
-    private var lastTimestampMs = 0L
+    private val clock = MonotonicClockMs()
 
     override var delegateName: String = "?"
         private set
@@ -47,7 +47,7 @@ class HandTracker(context: Context, private val maxHands: Int = 2) : HandDetecto
     override fun reset() {
         landmarker.close()
         landmarker = createLandmarker()
-        lastTimestampMs = 0L
+        clock.reset()
     }
 
     /**
@@ -56,10 +56,8 @@ class HandTracker(context: Context, private val maxHands: Int = 2) : HandDetecto
      */
     override fun detect(bitmap: Bitmap, rotationDegrees: Int): HandFrame {
         val start = SystemClock.elapsedRealtimeNanos()
-        val timestampMs = maxOf(lastTimestampMs + 1, SystemClock.uptimeMillis())
-        lastTimestampMs = timestampMs
         val options = ImageProcessingOptions.builder().setRotationDegrees(rotationDegrees).build()
-        val result = landmarker.detectForVideo(BitmapImageBuilder(bitmap).build(), options, timestampMs)
+        val result = landmarker.detectForVideo(BitmapImageBuilder(bitmap).build(), options, clock.next())
         val ms = (SystemClock.elapsedRealtimeNanos() - start) / 1_000_000f
 
         val hands = result.landmarks().mapIndexed { i, points ->
@@ -70,13 +68,8 @@ class HandTracker(context: Context, private val maxHands: Int = 2) : HandDetecto
                 score = category?.score() ?: 0f,
             )
         }
-        val sideways = rotationDegrees % 180 != 0
-        return HandFrame(
-            hands,
-            imageWidth = if (sideways) bitmap.height else bitmap.width,
-            imageHeight = if (sideways) bitmap.width else bitmap.height,
-            inferenceMs = ms,
-        )
+        val (width, height) = bitmap.uprightSize(rotationDegrees)
+        return HandFrame(hands, width, height, ms)
     }
 
     override fun close() = landmarker.close()

@@ -1,5 +1,10 @@
 package fr.kchallenge.touchp.tracking
 
+/** En dessous, un landmark du corps est considéré comme non visible (hors champ ou masqué). */
+const val MIN_VISIBILITY = 0.3f
+
+val Landmark.isVisible: Boolean get() = visibility >= MIN_VISIBILITY
+
 /** Résultat d'une inférence de pose : 33 landmarks pour une personne, ou null si personne. */
 data class BodyFrame(
     val landmarks: List<Landmark>? = null,
@@ -10,7 +15,6 @@ data class BodyFrame(
 
 /** Index des 33 landmarks MediaPipe Pose (ceux utilisés ici). */
 object PoseLm {
-    const val NOSE = 0
     const val L_SHOULDER = 11
     const val R_SHOULDER = 12
     const val L_ELBOW = 13

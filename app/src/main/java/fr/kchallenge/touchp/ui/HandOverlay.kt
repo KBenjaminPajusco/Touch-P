@@ -8,6 +8,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
 import fr.kchallenge.touchp.tracking.HandConnections
 import fr.kchallenge.touchp.tracking.HandFrame
@@ -26,14 +27,25 @@ fun HandOverlay(frame: HandFrame, mirror: Boolean, modifier: Modifier = Modifier
         frame.hands.forEachIndexed { index, hand ->
             val color = handColors[index % handColors.size]
             val pts = hand.landmarks.map { mapper.map(it.x, it.y) }
-            val stroke = 4.dp.toPx()
-            HandConnections.pairs.forEach { (a, b) ->
-                drawLine(color, pts[a], pts[b], strokeWidth = stroke, cap = StrokeCap.Round)
-            }
-            pts.forEach { p ->
-                drawCircle(Color.White, radius = 5.dp.toPx(), center = p)
-                drawCircle(color, radius = 3.dp.toPx(), center = p)
-            }
+            drawSkeleton(pts, HandConnections.pairs, color)
+        }
+    }
+}
+
+/** Traits + points d'un squelette ; `visible(i)` permet de masquer les points peu fiables. */
+internal fun DrawScope.drawSkeleton(
+    pts: List<Offset>,
+    pairs: List<Pair<Int, Int>>,
+    color: Color,
+    visible: (Int) -> Boolean = { true },
+) {
+    pairs.forEach { (a, b) ->
+        if (visible(a) && visible(b)) drawLine(color, pts[a], pts[b], strokeWidth = 4.dp.toPx(), cap = StrokeCap.Round)
+    }
+    pts.forEachIndexed { i, p ->
+        if (visible(i)) {
+            drawCircle(Color.White, radius = 5.dp.toPx(), center = p)
+            drawCircle(color, radius = 3.dp.toPx(), center = p)
         }
     }
 }

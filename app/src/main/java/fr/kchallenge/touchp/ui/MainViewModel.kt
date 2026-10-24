@@ -129,13 +129,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     /** Efface résultats et statistiques (changement de mode ou de source). */
     private fun resetResults() {
         _frame.value = HandFrame()
-        _body.value = BodyFrame()
         clearGestures()
-        figureFilter.reset(Figure.NONE)
-        _figure.value = Figure.NONE
+        clearBody()
         lastFrameNs = 0L
         fpsEma = 0f
         inferEma = 0f
+    }
+
+    private fun clearBody() {
+        _body.value = BodyFrame()
+        figureFilter.reset(Figure.NONE)
+        _figure.value = Figure.NONE
     }
 
     private fun clearGestures() {
@@ -173,11 +177,15 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private suspend fun showImage(item: DebugMedia.Item) {
         val bmp = debugMedia.loadImage(item) ?: return
         synchronized(this) { // pas de suivi résiduel de l'image précédente
-            if (_mode.value == Mode.HANDS) {
-                tracker.reset()
-                tracker.onScene(item.name)
+            when (_mode.value) {
+                Mode.HANDS -> {
+                    tracker.reset()
+                    tracker.onScene(item.name)
+                }
+                Mode.BODY -> bodyTracker.reset()
             }
             clearGestures()
+            clearBody()
         }
         _shot.value = DebugShot(bmp, item.name)
         val end = SystemClock.elapsedRealtime() + IMAGE_DURATION_MS

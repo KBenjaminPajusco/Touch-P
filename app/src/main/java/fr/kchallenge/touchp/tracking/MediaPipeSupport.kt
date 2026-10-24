@@ -1,5 +1,7 @@
 package fr.kchallenge.touchp.tracking
 
+import android.graphics.Bitmap
+import android.os.SystemClock
 import com.google.mediapipe.tasks.core.Delegate
 
 /**
@@ -15,3 +17,18 @@ internal fun <T> createWithFallback(previous: String?, build: (Delegate) -> T): 
         build(Delegate.CPU) to "CPU"
     }
 }
+
+/** Horodatage strictement croissant exigé par le mode VIDEO de MediaPipe. */
+internal class MonotonicClockMs {
+    private var last = 0L
+
+    fun next(): Long = maxOf(last + 1, SystemClock.uptimeMillis()).also { last = it }
+
+    fun reset() {
+        last = 0L
+    }
+}
+
+/** (largeur, hauteur) du bitmap une fois redressé de [rotationDegrees]. */
+internal fun Bitmap.uprightSize(rotationDegrees: Int): Pair<Int, Int> =
+    if (rotationDegrees % 180 != 0) height to width else width to height
