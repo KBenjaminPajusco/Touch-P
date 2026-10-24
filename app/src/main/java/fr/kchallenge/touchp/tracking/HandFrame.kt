@@ -1,7 +1,7 @@
 package fr.kchallenge.touchp.tracking
 
-/** Point normalisé [0..1] dans l'image analysée (x vers la droite, y vers le bas). */
-data class Landmark(val x: Float, val y: Float, val z: Float)
+/** Point normalisé [0..1] dans l'image analysée (x vers la droite, y vers le bas). `visibility` : corps seulement. */
+data class Landmark(val x: Float, val y: Float, val z: Float, val visibility: Float = 1f)
 
 /** Côté physique de la main, du point de vue de l'utilisateur. */
 enum class Side(val label: String) {

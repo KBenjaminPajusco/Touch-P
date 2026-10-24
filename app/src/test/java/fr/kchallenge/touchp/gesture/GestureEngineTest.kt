@@ -30,6 +30,15 @@ class GestureEngineTest {
         assertEquals("a", d.update("c"))
     }
 
+    @Test fun debouncerResetForcesValueImmediately() {
+        val d = Debouncer(3, "a")
+        repeat(2) { d.update("b") }
+        d.reset("c")
+        assertEquals("c", d.stable)
+        // La série en cours est oubliée : il faut à nouveau 3 images.
+        assertEquals("c", d.update("b"))
+    }
+
     @Test fun gestureAppearsAfterConfirmation() {
         val engine = GestureEngine(confirmFrames = 4)
         val results = (1..5).map { engine.update(frameOf(victory)).single().gesture }

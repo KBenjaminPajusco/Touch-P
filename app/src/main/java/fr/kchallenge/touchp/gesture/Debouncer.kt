@@ -10,6 +10,12 @@ class Debouncer<T>(private val confirmFrames: Int, initial: T) {
     private var candidate: T = initial
     private var streak = 0
 
+    fun reset(value: T) {
+        stable = value
+        candidate = value
+        streak = 0
+    }
+
     fun update(value: T): T {
         if (value == stable) {
             streak = 0

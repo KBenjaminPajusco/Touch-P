@@ -7,9 +7,14 @@ import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import fr.kchallenge.touchp.camera.DebugMedia
+import fr.kchallenge.touchp.figure.Figure
+import fr.kchallenge.touchp.figure.FigureClassifier
+import fr.kchallenge.touchp.gesture.Debouncer
 import fr.kchallenge.touchp.gesture.GestureEngine
 import fr.kchallenge.touchp.gesture.HandReading
 import fr.kchallenge.touchp.tracking.HandFrame
+import fr.kchallenge.touchp.tracking.BodyFrame
+import fr.kchallenge.touchp.tracking.BodyTracker
 import fr.kchallenge.touchp.tracking.HandDetector
 import fr.kchallenge.touchp.tracking.HandTracker
 import fr.kchallenge.touchp.tracking.ReplayDetector
@@ -26,14 +31,19 @@ import kotlinx.coroutines.withContext
 
 data class Stats(val fps: Float = 0f, val inferenceMs: Float = 0f, val delegate: String = "")
 
+enum class Mode(val label: String) { HANDS("Mains"), BODY("Corps") }
+
 /** Image debug affichée à la place de la caméra. */
 data class DebugShot(val bitmap: Bitmap, val label: String)
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     private var replay = false
-    // Créé au premier usage : MediaPipe charge sa lib native à ce moment-là.
-    private val tracker: HandDetector by lazy { if (replay) ReplayDetector(getApplication()) else HandTracker(getApplication()) }
+    // Créés au premier usage : MediaPipe charge sa lib native à ce moment-là.
+    private val handLazy = lazy { if (replay) ReplayDetector(getApplication()) else HandTracker(getApplication()) }
+    private val tracker: HandDetector by handLazy
+    private val bodyLazy = lazy { BodyTracker(getApplication()) }
+    private val bodyTracker: BodyTracker by bodyLazy
     private val debugMedia = DebugMedia(app)
 
     private val _frame = MutableStateFlow(HandFrame())
@@ -42,6 +52,16 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val gestures = GestureEngine()
     private val _readings = MutableStateFlow<List<HandReading>>(emptyList())
     val readings: StateFlow<List<HandReading>> = _readings.asStateFlow()
+
+    private val _mode = MutableStateFlow(Mode.HANDS)
+    val mode: StateFlow<Mode> = _mode.asStateFlow()
+
+    private val _body = MutableStateFlow(BodyFrame())
+    val body: StateFlow<BodyFrame> = _body.asStateFlow()
+
+    private val figureFilter = Debouncer(FIGURE_CONFIRM_FRAMES, Figure.NONE)
+    private val _figure = MutableStateFlow(Figure.NONE)
+    val figure: StateFlow<Figure> = _figure.asStateFlow()
 
     private val _stats = MutableStateFlow(Stats())
     val stats: StateFlow<Stats> = _stats.asStateFlow()
@@ -66,21 +86,56 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     @Synchronized
     private fun process(bitmap: Bitmap, rotationDegrees: Int = 0) {
-        val result = tracker.detect(bitmap, rotationDegrees)
+        val (inferenceMs, delegate) = when (_mode.value) {
+            Mode.HANDS -> processHands(bitmap, rotationDegrees)
+            Mode.BODY -> processBody(bitmap, rotationDegrees)
+        }
         val now = SystemClock.elapsedRealtimeNanos()
         if (lastFrameNs != 0L) {
             val fps = 1e9f / (now - lastFrameNs)
             fpsEma = if (fpsEma == 0f) fps else fpsEma * 0.9f + fps * 0.1f
         }
         lastFrameNs = now
-        inferEma = if (inferEma == 0f) result.inferenceMs else inferEma * 0.9f + result.inferenceMs * 0.1f
-        _frame.value = result
-        _readings.value = gestures.update(result)
-        _stats.value = Stats(fpsEma, inferEma, tracker.delegateName)
+        inferEma = if (inferEma == 0f) inferenceMs else inferEma * 0.9f + inferenceMs * 0.1f
+        _stats.value = Stats(fpsEma, inferEma, delegate)
         if (now - lastPerfLogNs > 2_000_000_000L) {
             lastPerfLogNs = now
-            Log.i(TAG, "PERF fps=%.1f inferMs=%.1f delegate=%s debug=%b".format(fpsEma, inferEma, tracker.delegateName, _debug.value))
+            Log.i(TAG, "PERF mode=%s fps=%.1f inferMs=%.1f delegate=%s debug=%b".format(_mode.value, fpsEma, inferEma, delegate, _debug.value))
         }
+    }
+
+    private fun processHands(bitmap: Bitmap, rotationDegrees: Int): Pair<Float, String> {
+        val result = tracker.detect(bitmap, rotationDegrees)
+        _frame.value = result
+        _readings.value = gestures.update(result)
+        return result.inferenceMs to tracker.delegateName
+    }
+
+    private fun processBody(bitmap: Bitmap, rotationDegrees: Int): Pair<Float, String> {
+        val result = bodyTracker.detect(bitmap, rotationDegrees)
+        _body.value = result
+        val raw = result.landmarks?.let { FigureClassifier.classify(it, result.imageWidth, result.imageHeight) } ?: Figure.NONE
+        _figure.value = figureFilter.update(raw)
+        return result.inferenceMs to bodyTracker.delegateName
+    }
+
+    @Synchronized
+    fun setMode(mode: Mode) {
+        if (_mode.value == mode) return
+        _mode.value = mode
+        resetResults()
+    }
+
+    /** Efface résultats et statistiques (changement de mode ou de source). */
+    private fun resetResults() {
+        _frame.value = HandFrame()
+        _body.value = BodyFrame()
+        clearGestures()
+        figureFilter.reset(Figure.NONE)
+        _figure.value = Figure.NONE
+        lastFrameNs = 0L
+        fpsEma = 0f
+        inferEma = 0f
     }
 
     private fun clearGestures() {
@@ -97,11 +152,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         if (_debug.value == enabled) return
         _debug.value = enabled
         debugJob?.cancel()
-        _frame.value = HandFrame()
-        clearGestures()
-        lastFrameNs = 0L
-        fpsEma = 0f
-        inferEma = 0f
+        resetResults()
         if (!enabled) {
             _shot.value = null
             return
@@ -122,8 +173,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private suspend fun showImage(item: DebugMedia.Item) {
         val bmp = debugMedia.loadImage(item) ?: return
         synchronized(this) { // pas de suivi résiduel de l'image précédente
-            tracker.reset()
-            tracker.onScene(item.name)
+            if (_mode.value == Mode.HANDS) {
+                tracker.reset()
+                tracker.onScene(item.name)
+            }
             clearGestures()
         }
         _shot.value = DebugShot(bmp, item.name)
@@ -152,11 +205,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     override fun onCleared() {
         debugJob?.cancel()
-        tracker.close()
+        if (handLazy.isInitialized()) tracker.close()
+        if (bodyLazy.isInitialized()) bodyTracker.close()
     }
 
     private companion object {
         const val TAG = "TouchP"
+        const val FIGURE_CONFIRM_FRAMES = 6
         const val IMAGE_DURATION_MS = 3000L
     }
 }

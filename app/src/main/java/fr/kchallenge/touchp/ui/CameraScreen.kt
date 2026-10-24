@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +42,9 @@ fun CameraScreen(vm: MainViewModel) {
     val debug by vm.debug.collectAsStateWithLifecycle()
     val shot by vm.shot.collectAsStateWithLifecycle()
     val readings by vm.readings.collectAsStateWithLifecycle()
+    val mode by vm.mode.collectAsStateWithLifecycle()
+    val body by vm.body.collectAsStateWithLifecycle()
+    val figure by vm.figure.collectAsStateWithLifecycle()
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
         if (debug) {
@@ -70,7 +74,10 @@ fun CameraScreen(vm: MainViewModel) {
             )
         }
 
-        HandOverlay(frame, mirror = !debug)
+        when (mode) {
+            Mode.HANDS -> HandOverlay(frame, mirror = !debug)
+            Mode.BODY -> BodyOverlay(body, mirror = !debug)
+        }
 
         Column(
             Modifier.statusBarsPadding().padding(12.dp).clip(RoundedCornerShape(10.dp))
@@ -78,12 +85,20 @@ fun CameraScreen(vm: MainViewModel) {
         ) {
             Text("FPS %.1f".format(stats.fps), color = Color.White, fontSize = 14.sp)
             Text("Inférence %.1f ms (%s)".format(stats.inferenceMs, stats.delegate), color = Color.White, fontSize = 14.sp)
-            Text("Mains : ${frame.hands.size}", color = Color.White, fontSize = 14.sp)
-            readings.forEach {
-                Text(
-                    "${it.side.label} : ${it.gesture.label} · ${it.fingerCount} doigt(s)",
-                    color = Color(0xFF69F0AE), fontSize = 14.sp,
-                )
+            when (mode) {
+                Mode.HANDS -> {
+                    Text("Mains : ${frame.hands.size}", color = Color.White, fontSize = 14.sp)
+                    readings.forEach {
+                        Text(
+                            "${it.side.label} : ${it.gesture.label} · ${it.fingerCount} doigt(s)",
+                            color = Color(0xFF69F0AE), fontSize = 14.sp,
+                        )
+                    }
+                }
+                Mode.BODY -> {
+                    Text(if (body.landmarks != null) "Corps détecté" else "Aucun corps", color = Color.White, fontSize = 14.sp)
+                    Text("Figure : ${figure.label}", color = Color(0xFF69F0AE), fontSize = 14.sp)
+                }
             }
             if (debug) shot?.let { Text(it.label, color = Color(0xFFFFEB3B), fontSize = 12.sp) }
         }
@@ -94,7 +109,10 @@ fun CameraScreen(vm: MainViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Debug (médias)", color = Color.White)
+            Mode.entries.forEach {
+                FilterChip(selected = mode == it, onClick = { vm.setMode(it) }, label = { Text(it.label) })
+            }
+            Text("Debug", color = Color.White)
             Switch(checked = debug, onCheckedChange = vm::setDebug)
         }
     }

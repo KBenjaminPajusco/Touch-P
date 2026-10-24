@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.os.SystemClock
 import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.tasks.core.BaseOptions
-import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.ImageProcessingOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarker
@@ -25,7 +24,7 @@ class HandTracker(context: Context, private val maxHands: Int = 2) : HandDetecto
         private set
 
     private fun createLandmarker(): HandLandmarker {
-        fun build(delegate: Delegate): HandLandmarker {
+        val (landmarker, delegate) = createWithFallback(delegateName.takeIf { it != "?" }) { delegate ->
             val base = BaseOptions.builder()
                 .setModelAssetPath(MODEL_ASSET)
                 .setDelegate(delegate)
@@ -38,15 +37,10 @@ class HandTracker(context: Context, private val maxHands: Int = 2) : HandDetecto
                 .setMinHandPresenceConfidence(0.5f)
                 .setMinTrackingConfidence(0.5f)
                 .build()
-            return HandLandmarker.createFromOptions(appContext, options)
+            HandLandmarker.createFromOptions(appContext, options)
         }
-        // Le delegate déjà retenu est réutilisé après un reset (pas de ré-essai GPU inutile).
-        if (delegateName == "CPU") return build(Delegate.CPU)
-        return try {
-            build(Delegate.GPU).also { delegateName = "GPU" }
-        } catch (e: Exception) {
-            build(Delegate.CPU).also { delegateName = "CPU" }
-        }
+        delegateName = delegate
+        return landmarker
     }
 
     /** Oublie l'état de suivi (changement de scène, par ex. d'image de test). */

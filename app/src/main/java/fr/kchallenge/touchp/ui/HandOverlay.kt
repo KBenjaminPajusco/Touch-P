@@ -38,7 +38,7 @@ fun HandOverlay(frame: HandFrame, mirror: Boolean, modifier: Modifier = Modifier
     }
 }
 
-private class CropMapper(canvas: Size, private val iw: Int, private val ih: Int, private val mirror: Boolean) {
+internal class CropMapper(canvas: Size, private val iw: Int, private val ih: Int, private val mirror: Boolean) {
     private val w = canvas.width
     private val scale = maxOf(canvas.width / iw, canvas.height / ih)
     private val dx = (canvas.width - iw * scale) / 2f
